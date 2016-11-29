@@ -14,12 +14,14 @@ function view_cars_key(event) {
 }
 
 function view_cars() {
+    console.log("Search");
     $.ajax({
         method: "POST",
-        url: "search.php",
+        url: "server/search.php",
         dataType: "text", //return text data
         data: {search: $("#search").val()}, //send the value of the search box
         success: function (data) {
+            console.log(data);
             $("#returned_cars").html(data); //the returned result is the HTML of the students div
         }
     });   

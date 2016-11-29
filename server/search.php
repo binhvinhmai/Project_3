@@ -15,15 +15,18 @@ if (isset($_POST['find-car-input']) && trim($_POST['find-car-input']) != "") {
 
     $row_count = mysqli_num_rows($result);
 
-    //change the below 
+    //Create the HTML for each car
     for ($j = 0; $j < $row_count; ++$j) {
         $row = mysqli_fetch_array($result); //fetch the next row
-        $returned_cars.=display_student($row);
+        $returned_cars.=display_car($row);
     }
-    
-    echo $student;
     
     mysqli_close($connection);
 }
+
+//Make HTML for a returned car
+    function display_car($row) {
+        $car = "";
+    }
 
 ?>
