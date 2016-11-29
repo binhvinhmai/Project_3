@@ -1,0 +1,29 @@
+<table>
+    <tr>
+        <th>Picture</th><th>Detail</th>
+    </tr>
+    {{#block returned_car}}
+    <tr>
+        <td><img src="{{picture}}"></td> 
+        <td class="car_details"> 
+            <div class="car_title">
+                <div class="car_make">
+                    {{make}} | {{model}}
+                </div>
+                <div class="car_year">
+                    {{year}}
+                </div>
+            </div>
+            <div class="car_size">
+                Size: {{size}}
+            </div>
+            <div class="rental_ID">
+                Rental #: {{rental_ID}}
+            </div>   
+            <div class="car_date">
+                Return date: {{return_date}}
+            </div>          
+        </td>
+    </tr>
+    {{#end block returned_car}}
+</table>
