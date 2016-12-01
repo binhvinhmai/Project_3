@@ -1,19 +1,20 @@
 <?php
 
 include "sanitization.php";
+session_start(); //start the session
 $result= "failure";
 
 // Get the type and ensure that we have an active session
-// TODO: make this line work: if (isset($_POST['type']) && is_session_active()) 
-if (isset($_POST['type'])) {
+if (isset($_POST['type']) && is_session_active()) {
     
     $request_type = sanitizeMYSQL($connection, $_POST['type']);
+    $_SESSION['start'] = time(); //reset the session start time
      switch ($request_type) { //check the request type
         case "search":
             $result = search($connection, sanitizeMYSQL($connection, $_POST['search']));
             break;
         case "rent":
-            $result = drop($connection, sanitizeMYSQL($connection, $_POST['car_id']));
+            $result = rent($connection, sanitizeMYSQL($connection, $_POST['car_id']));
             break;
         case "logout":
 		    logout();
@@ -64,10 +65,17 @@ function search($connection, $search) {
     return json_encode($final_result);
 }
 
-function drop($connection, $car_id) {
+function rent($connection, $car_id) {
     $query = "UPDATE car SET Status='1' WHERE ID='$car_id'";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
+    $result1 = mysqli_query($connection, $query);
+    /*
+    $query = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
+            . "VALUES ('" . date("Y-m-d", time()) 
+            . "', NULL, '1','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
+    $result2 = mysqli_query($connection, $query);
+    
+     */
+    if ((!$result) or (!$result2))
         return "fail";
     return "success";
 }

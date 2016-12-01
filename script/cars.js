@@ -1,6 +1,5 @@
 $(document).ready(init);
 
-//Copied straight from search.hs in student_ajax, need to modify actually
 function init(){
     //If user clicks the magnifying glass
     $("#find-car").on("click",view_cars);
@@ -17,7 +16,7 @@ function view_cars() {
     var search = $("#find-car-input").val();
     $.ajax({
         method: "POST",
-        url: "server/controller.php",
+        url: "./server/controller.php",
         dataType: "json", //return text data
         data: {type: "search", search: search}, //send the value of the search box
         success: function (data) {
@@ -35,7 +34,7 @@ function rent_car(rent_car_button) {
     var car_id=$(rent_car_button).attr("id");
     $.ajax({
         method: "POST",
-        url: "server/controller.php",
+        url: "./server/controller.php",
         dataType: "text", //return text data
         data: {type: "rent",car_id:car_id},
         success: function (data) {
