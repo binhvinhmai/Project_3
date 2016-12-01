@@ -15,6 +15,10 @@ if (isset($_POST['type'])) {
         case "rent":
             $result = drop($connection, sanitizeMYSQL($connection, $_POST['car_id']));
             break;
+        case "logout":
+		    logout();
+		    $result = "success";
+		    break;
     }
     
     echo $result;
@@ -66,6 +70,21 @@ function drop($connection, $car_id) {
     if (!$result)
         return "fail";
     return "success";
+}
+
+function logout() {
+    $_SESSION = array(); //everything we put into the session array (data, login info, ID, etc) is gone
+    
+    //now we destroy the cookie
+    // 100% adapted from Kuhail's slides thank you Professor Kuhail
+    // set the cookie time a month in the past that should be enough
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 2592000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
+    }
+    
+    // last but not least we destroy the session
+    session_destroy();
 }
 ?>
 
