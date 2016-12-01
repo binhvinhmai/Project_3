@@ -17,9 +17,11 @@ if (isset($_POST['type']) && is_session_active()) {
             $result = rent($connection, sanitizeMYSQL($connection, $_POST['car_id']));
             break;
         case "logout":
-		    logout();
-		    $result = "success";
-		    break;
+            //Lucy - this should be changed to the above syntax. 
+            //Otherwise, even if logout fails, it will be passed as a success
+            logout();
+            $result = "success";
+            break;
     }
     
     echo $result;
@@ -68,14 +70,11 @@ function search($connection, $search) {
 function rent($connection, $car_id) {
     $query = "UPDATE car SET Status='1' WHERE ID='$car_id'";
     $result1 = mysqli_query($connection, $query);
-    /*
     $query = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
             . "VALUES ('" . date("Y-m-d", time()) 
             . "', NULL, '1','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
     $result2 = mysqli_query($connection, $query);
-    
-     */
-    if ((!$result) or (!$result2))
+    if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
     return "success";
 }
