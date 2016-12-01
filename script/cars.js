@@ -3,7 +3,7 @@ $(document).ready(init);
 //Copied straight from search.hs in student_ajax, need to modify actually
 function init(){
     //If user clicks the magnifying glass
-    $("#find-car").on("click",view_cars());
+    $("#find-car").on("click",view_cars);
     //If user hits 'Enter' after a search
     $("#find-car-input").on("keydown",function(event){view_cars_key(event);});
 }
@@ -14,15 +14,19 @@ function view_cars_key(event) {
 }
 
 function view_cars() {
-    console.log("Search");
+    var search = $("#find-car-input").val();
+    console.log(search)
     $.ajax({
         method: "POST",
-        url: "server/search.php",
-        dataType: "text", //return text data
-        data: {search: $("#search").val()}, //send the value of the search box
+        url: "server/controller.php",
+        dataType: "json", //return text data
+        data: {type: "search", search: search}, //send the value of the search box
         success: function (data) {
             console.log(data);
-            $("#returned_cars").html(data); //the returned result is the HTML of the students div
+            var search_item_template = $("#find-car-template").html();
+            var html_maker = new htmlMaker(search_item_template);
+            var html = html_maker.getHTML(data);
+            $("#search_results").html(html);
         }
     });   
 }
