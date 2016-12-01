@@ -12,6 +12,9 @@ if (isset($_POST['type'])) {
         case "search":
             $result = search($connection, sanitizeMYSQL($connection, $_POST['search']));
             break;
+        case "rent":
+            $result = drop($connection, sanitizeMYSQL($connection, $_POST['car_id']));
+            break;
     }
     
     echo $result;
@@ -23,13 +26,14 @@ function is_session_active() {
 
 function search($connection, $search) {
     /* select all cars where any of the description is similar to the input */
-    $query = "SELECT * FROM car "
+    $query = "SELECT car.ID, car.Status, car.Picture, car.Picture_type, car.Color, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size FROM car "
             . "INNER JOIN carspecs " 
             . "ON car.CarSpecsID = carspecs.ID " 
             . "WHERE Status = '2' AND ("
             . "Make like '%$search%' OR " 
             . "Model like '%$search%' OR "
             . "YearMade like '%$search%' OR "
+            . "Size like '%$search%' OR "
             . "Color like '%$search%')";
     $result = mysqli_query($connection,$query);
     $html="";
@@ -43,19 +47,25 @@ function search($connection, $search) {
         $row_count = mysqli_num_rows($result);
         for($i=0;$i<$row_count;++$i){
             $row = mysqli_fetch_array($result);
-            $item = array("id"=>$row["ID"],
-                "picture_type"=>$row["Picture_type"],
-                "picture"=>base64_encode($row["Picture"]), 
+            $item = array("ID"=>$row["ID"],
+                "picture"=>'data:' . $row["Picture_Type"] . ';base64,' . base64_encode($row["Picture"]), 
                 "make"=>$row["Make"], 
                 "model"=>$row["Model"], 
                 "year"=>$row["YearMade"], 
                 "color"=>$row["Color"], 
                 "size"=>$row["Size"]);
-            $final_result["items"][]=$item;
+            array_push($final_result, $item);
         }
     }
     return json_encode($final_result);
 }
 
+function drop($connection, $car_id) {
+    $query = "UPDATE car SET Status='1' WHERE ID='$car_id'";
+    $result = mysqli_query($connection, $query);
+    if (!$result)
+        return "fail";
+    return "success";
+}
 ?>
 
