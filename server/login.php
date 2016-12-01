@@ -16,7 +16,8 @@ if (isset($_POST['name']) && isset($_POST['password'])) {
             $row = mysqli_fetch_array($result);
             session_start(); //we start a session
             $_SESSION['start'] = time(); //we set that to make the session expire after some time
-            $_SESSION["username"] = $row["ID"];  //we save the user ID here
+            $_SESSION["username"] = $row["name"];  //we save the customer name here, not the ID
+            $_SESSION["ID"] = $row["ID"]; //we save the user ID here so SQL queries and updates work
             ini_set('session.use_only_cookies',1); //use cookies only, prevent session hijacking
             $return=  "success"; //login succeeded
         }
