@@ -17,10 +17,10 @@ if (isset($_POST['type']) && is_session_active()) {
             $result = rent($connection, sanitizeMYSQL($connection, $_POST['car_id']));
             break;
         case "logout":
-            //Lucy - this should be changed to the above syntax. 
-            //Otherwise, even if logout fails, it will be passed as a success
-            logout();
-            $result = "success";
+            $result = logout();
+            break;
+        case "history":
+            $result = get_rest_history($connection);
             break;
     }
     
@@ -92,6 +92,42 @@ function logout() {
     
     // last but not least we destroy the session
     session_destroy();
+    return "success";
+}
+
+function get_rent_history($connection) {
+    // assumes rental history is the same regardless of who is logged in
+    
+    // variables:
+    $returned = Array();
+    $returned["cars"] = Array();
+    // we need the relevent info about the cars, but they're in two different databases
+    // rental.status = 2 means it's been returned
+    $query = "SELECT Car.ID, Car.Color, Car.Picture, CarSpecs.Make, CarSpecs.Model, CarSpecs.YearMade, CarSpecs.Size "
+            . "FROM Car INNER JOIN CarSpecs ON Car.CarSpecsID = CarSpecs.ID "
+            . "INNER JOIN Rental ON Car.ID = Rental.carID "
+            . "WHERE Rental.Status = 2 ;";
+    $result = mysqli_query($connection, $query);
+    
+    if (!$result) // if for some reason making this new hybrid database doesn't work, return "failed"
+        return json_encode($returned);
+    
+    else { // stick everything into a display array
+		$row_count = mysqli_num_rows($result);
+        for ($i = 0; $i < $row_count; $i++) { 
+			$array["ID"] = $row["ID"]; 
+            $array["Make"] = $row["Make"]; 
+            $array["Model"]=$row["Model"];
+            $array["Year"]=$row["Year"];
+            $array["Picture"]=$row["Picture"];
+            $array["Size"]=$row["Size"];
+            $array["rentDate"]=$row["rentDate"];
+            $returned["rentals"][] = $array;
+		}
+    }
+    
+    // if we've gotten here the Returned Cars array should have been filled and displayed correctly
+    return json_encode($returned);
 }
 ?>
 
