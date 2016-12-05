@@ -22,6 +22,12 @@ if (isset($_POST['type']) && is_session_active()) {
         case "history":
             $result = get_rest_history($connection);
             break;
+        case "return":
+            $result = return_car($connection, sanitizeMYSQL($connection, $_POST['car_id']));
+            break;
+        case "rentals":
+            $result = show_rented($connection);
+            break;
     }
     
     echo $result;
@@ -36,7 +42,7 @@ function search($connection, $search) {
     $query = "SELECT car.ID, car.Status, car.Picture, car.Picture_type, car.Color, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size FROM car "
             . "INNER JOIN carspecs " 
             . "ON car.CarSpecsID = carspecs.ID " 
-            . "WHERE Status = '2' AND ("
+            . "WHERE Status = '1' AND ("
             . "Make like '%$search%' OR " 
             . "Model like '%$search%' OR "
             . "YearMade like '%$search%' OR "
@@ -68,6 +74,18 @@ function search($connection, $search) {
 }
 
 function rent($connection, $car_id) {
+    $query = "UPDATE car SET Status='2' WHERE ID='$car_id'";
+    $result1 = mysqli_query($connection, $query);
+    $query = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
+            . "VALUES ('" . date("Y-m-d", time()) 
+            . "', NULL, '2','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
+    $result2 = mysqli_query($connection, $query);
+    if ((!$result1) AND (!$result2)) //If both failed
+        return "fail";
+    return "success";
+}
+
+function return_car($connection, $car_id) {
     $query = "UPDATE car SET Status='1' WHERE ID='$car_id'";
     $result1 = mysqli_query($connection, $query);
     $query = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
@@ -129,5 +147,38 @@ function get_rent_history($connection) {
     // if we've gotten here the Returned Cars array should have been filled and displayed correctly
     return json_encode($returned);
 }
+
+function show_rented($connection) {
+    $final = Array();
+    $final["rentals"] = Array();
+    $query = "SELECT Car.Picture, CarSpecs.Make, CarSpecs.Model, CarSpecs.YearMade, CarSpecs.Size, "
+            . "Rental.ID, Rental.rentDate"
+            . "FROM Car INNER JOIN CarSpecs ON Car.CarSpecsID = CarSpecs.ID "
+            . "INNER JOIN Rental ON Car.ID = Rental.carID "
+            . "WHERE Rental.Status = 1 AND "
+            . "WHERE Rental.customerID = '" . $_SESSION['ID'] . "';"; //if I am understanding this correctly this would
+    //use the stored ID in the session (the users) to grab the rentals that are not returned who also have
+    //a customer ID that matches the ID stored in the session, and then grab the car related info associated with the rental
+	// -- Jkarnes: Yes. That's exactly what the $*_SESSION['ID'] does.
+    $result = mysqli_query($connection, $query);
+    if (!$result)
+        return json_encode($final);
+    else {
+        $row_count = mysqli_num_rows($result);
+        for ($i = 0; $i < $row_count; $i++) {
+            $array["ID"] = $row["ID"]; 
+            $array["Make"] = $row["Make"]; 
+            $array["Model"]=$row["Model"];
+            $array["Year"]=$row["Year"];
+            $array["Picture"]=$row["Picture"];
+            $array["Size"]=$row["Size"];
+            $array["rentDate"]=$row["rentDate"];
+            $returned["rentals"][] = $array;
+        }
+    }
+    
+    return json_encode($final);
+}
 ?>
+
 
