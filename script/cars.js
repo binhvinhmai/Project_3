@@ -46,4 +46,40 @@ function rent_car(rent_car_button) {
     }); 
 }
 
+function return_car(return_car_button) {
+    var car_id=$(return_car_button).attr("id");
+    $.ajax({
+        method: "POST",
+        url: "./server/controller.php",
+        dataType: "json",
+        data: {type: "return",car_id:car_id},
+        success: function (data) {
+            alert("The car has been successfully returned");
+            show_rented_cars();
+        }
+    })
+}
 
+function show_rented(){
+    var show_rented = "showData";
+    $.ajax({
+        method: "POST",
+        url: "controller.php",
+        dataType: "json",
+        data: { type:"rentals",
+                value:show_rented},
+        success: function(rec_data) {
+            var info_template=$("#rented-car-template").html();
+            var html_maker=new htmlMaker(info_template);
+            var html=html_maker.getHTML(rec_data);    
+            $("#rented_cars").html(html);
+            $("div[class=car_return]").on("click",function(){return_car(this);});
+            $(".return_car").on("click",return_car($this.attr("data-rental-id")));//pretty sure this is correct                
+            
+        }
+    });
+}
+
+function logout() {
+    
+}
