@@ -81,5 +81,19 @@ function show_rented(){
 }
 
 function logout() {
-    
+    $.ajax({ 
+        method: "POST",
+        url: "controller.php",
+        dataType: "json",
+        data: { type: "logout: },
+        success: function(rec_data) { 
+            if ($.trim(rec_data)) == "success")
+            {
+                alert("You have been successfully logged out");
+                window.location.assign("index.html"); // redirect back home
+            }
+            else
+                alert("You have not been successfully logged out.  Please try again");
+        }
+    });
 }
