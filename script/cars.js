@@ -17,14 +17,14 @@ function view_cars() {
     $.ajax({
         method: "POST",
         url: "./server/controller.php",
-        dataType: "json", //return text data
-        data: {type: "search", search: search}, //send the value of the search box
+        dataType: "json", //Return text data
+        data: {type: "search", search: search}, //Send the value of the search box
         success: function (data) {
             var search_item_template = $("#find-car-template").html();
             var html_maker = new htmlMaker(search_item_template);
             var html = html_maker.getHTML(data);
             $("#search_results").html(html);
-            //attach rent car event
+            //Attach rent car event
             $("div[class=car_rent]").on("click",function(){rent_car(this);});
         }
     });
@@ -79,13 +79,13 @@ function show_rented(){
         }
     });
 }
-
+/*
 function logout() {
     $.ajax({ 
         method: "POST",
         url: "controller.php",
         dataType: "json",
-        data: { type: "logout: },
+        data: { type: "logout" },
         success: function(rec_data) { 
             if ($.trim(rec_data)) == "success")
             {
@@ -96,4 +96,4 @@ function logout() {
                 alert("You have not been successfully logged out.  Please try again");
         }
     });
-}
+}*/

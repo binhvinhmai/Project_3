@@ -4,7 +4,7 @@ include "sanitization.php";
 session_start(); //start the session
 $result= "failure";
 
-// Get the type and ensure that we have an active session
+//Get the type and ensure that we have an active session
 if (isset($_POST['type']) && is_session_active()) {
     
     $request_type = sanitizeMYSQL($connection, $_POST['type']);
@@ -38,7 +38,7 @@ function is_session_active() {
 }
 
 function search($connection, $search) {
-    /* select all cars where any of the description is similar to the input */
+    //Select all cars where any of the description is similar to the input
     $query = "SELECT car.ID, car.Status, car.Picture, car.Picture_type, car.Color, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size FROM car "
             . "INNER JOIN carspecs " 
             . "ON car.CarSpecsID = carspecs.ID " 
@@ -50,16 +50,19 @@ function search($connection, $search) {
             . "Color like '%$search%')";
     $result = mysqli_query($connection,$query);
     $html="";
+    
     //If failed
     if (!$result)
         die("Database access failed: " . mysqli_error($connection));
     
     //Otherwise
-    $final_result = array();
+    $final_result = array(); //One dimensional array
     if ($result) {
         $row_count = mysqli_num_rows($result);
         for($i=0;$i<$row_count;++$i){
-            $row = mysqli_fetch_array($result);
+            $row = mysqli_fetch_array($result); 
+            //Get the data
+            //Note that the imformation for the bitmap images are hardcoded into it
             $item = array("ID"=>$row["ID"],
                 "picture"=>'data:' . $row["Picture_Type"] . ';base64,' . base64_encode($row["Picture"]), 
                 "make"=>$row["Make"], 
@@ -74,12 +77,14 @@ function search($connection, $search) {
 }
 
 function rent($connection, $car_id) {
+    //The following code performs two SQL queries
+    //Make it '2' to mark that it's unavailable
     $query = "UPDATE car SET Status='2' WHERE ID='$car_id'";
-    $result1 = mysqli_query($connection, $query);
+    $result1 = mysqli_query($connection, $query); //Check the first one
     $query = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
             . "VALUES ('" . date("Y-m-d", time()) 
             . "', NULL, '2','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
-    $result2 = mysqli_query($connection, $query);
+    $result2 = mysqli_query($connection, $query); //Check the second one
     if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
     return "success";
@@ -98,42 +103,44 @@ function return_car($connection, $car_id) {
 }
 
 function logout() {
-    $_SESSION = array(); //everything we put into the session array (data, login info, ID, etc) is gone
+    $_SESSION = array(); //Everything we put into the session array (data, login info, ID, etc) is gone
     
-    //now we destroy the cookie
-    // 100% adapted from Kuhail's slides thank you Professor Kuhail
-    // set the cookie time a month in the past that should be enough
+    //Now we destroy the cookie
+    //100% adapted from Kuhail's slides thank you Professor Kuhail
+    //Set the cookie time a month in the past that should be enough
     if (ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();
         setcookie(session_name(), '', time() - 2592000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
     }
     
-    // last but not least we destroy the session
+    //Last but not least we destroy the session
     session_destroy();
     return "success";
 }
 
 function get_rent_history($connection) {
-    // assumes rental history is the same regardless of who is logged in
+    //Assumes rental history is the same regardless of who is logged in
     
-    // variables:
+    //Variables:
     $returned = Array();
     $returned["cars"] = Array();
-    // we need the relevent info about the cars, but they're in two different databases
-    // rental.status = 2 means it's been returned
+    //We need the relevent info about the cars, but they're in two different databases
+    //rental.status = 2 means it's been returned
     $query = "SELECT Car.ID, Car.Color, Car.Picture, CarSpecs.Make, CarSpecs.Model, CarSpecs.YearMade, CarSpecs.Size "
             . "FROM Car INNER JOIN CarSpecs ON Car.CarSpecsID = CarSpecs.ID "
             . "INNER JOIN Rental ON Car.ID = Rental.carID "
             . "WHERE Rental.Status = 2 ;";
     $result = mysqli_query($connection, $query);
     
-    if (!$result) // if for some reason making this new hybrid database doesn't work, return "failed"
+    //If for some reason this hybrid database doesn't work, return "failed"
+    if (!$result) 
         return json_encode($returned);
     
-    else { // stick everything into a display array
-		$row_count = mysqli_num_rows($result);
+    //Retrieve data and stick everything into a display array
+    else {
+        $row_count = mysqli_num_rows($result);
         for ($i = 0; $i < $row_count; $i++) { 
-			$array["ID"] = $row["ID"]; 
+            $array["ID"] = $row["ID"]; 
             $array["Make"] = $row["Make"]; 
             $array["Model"]=$row["Model"];
             $array["Year"]=$row["Year"];
@@ -141,10 +148,10 @@ function get_rent_history($connection) {
             $array["Size"]=$row["Size"];
             $array["rentDate"]=$row["rentDate"];
             $returned["rentals"][] = $array;
-		}
+        }
     }
     
-    // if we've gotten here the Returned Cars array should have been filled and displayed correctly
+    //If we've gotten here the Returned Cars array should have been filled
     return json_encode($returned);
 }
 
@@ -156,9 +163,10 @@ function show_rented($connection) {
             . "FROM Car INNER JOIN CarSpecs ON Car.CarSpecsID = CarSpecs.ID "
             . "INNER JOIN Rental ON Car.ID = Rental.carID "
             . "WHERE Rental.Status = 1 AND "
-            . "WHERE Rental.customerID = '" . $_SESSION['ID'] . "';"; //if I am understanding this correctly this would
-    //use the stored ID in the session (the users) to grab the rentals that are not returned who also have
-    //a customer ID that matches the ID stored in the session, and then grab the car related info associated with the rental
+            . "WHERE Rental.customerID = '" . $_SESSION['ID'] . "';"; 
+
+    //Use the stored ID in the session (the users) to grab the rentals that are not returned who also have
+    //A customer ID that matches the ID stored in the session, and then grab the car related info associated with the rental
 	// -- Jkarnes: Yes. That's exactly what the $*_SESSION['ID'] does.
     $result = mysqli_query($connection, $query);
     if (!$result)
