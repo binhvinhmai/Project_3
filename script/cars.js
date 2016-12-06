@@ -5,6 +5,7 @@ function init(){
     $("#find-car").on("click",view_cars);
     //If user hits 'Enter' after a search
     $("#find-car-input").on("keydown",function(event){view_cars_key(event);});
+    $("#logout-link").on("click", logout);
 }
 
 function view_cars_key(event) {
@@ -13,6 +14,7 @@ function view_cars_key(event) {
 }
 
 function view_cars() {
+    console.log("Tried to view cars");
     var search = $("#find-car-input").val();
     $.ajax({
         method: "POST",
@@ -61,6 +63,7 @@ function return_car(return_car_button) {
 }
 
 function show_rented(){
+    console.log("tried to show rented cars");
     var show_rented = "showData";
     $.ajax({
         method: "POST",
@@ -68,10 +71,10 @@ function show_rented(){
         dataType: "json",
         data: { type:"rentals",
                 value:show_rented},
-        success: function(rec_data) {
+        success: function(data) {
             var info_template=$("#rented-car-template").html();
             var html_maker=new htmlMaker(info_template);
-            var html=html_maker.getHTML(rec_data);    
+            var html=html_maker.getHTML(data);    
             $("#rented_cars").html(html);
             $("div[class=car_return]").on("click",function(){return_car(this);});
             $(".return_car").on("click",return_car($this.attr("data-rental-id")));//pretty sure this is correct                
@@ -81,13 +84,14 @@ function show_rented(){
 }
 
 function logout() {
+    console.log("Tried to log out");
     $.ajax({ 
         method: "POST",
         url: "./server/controller.php",
-        dataType: "json",
+        dataType: "text",
         data: { type: "logout" },
-        success: function(rec_data) { 
-            if ($.trim(rec_data) == "success")
+        success: function(data) { 
+            if ($.trim(data) == "success")
             {
                 alert("You have been successfully logged out");
                 window.location.assign("index.html"); // redirect back home
@@ -99,6 +103,7 @@ function logout() {
 }
 
 function show_rental_history() {
+    console.log("Tried to show rent history");
     $.ajax({
         method: "POST",
         url: "./server/controller.php",
