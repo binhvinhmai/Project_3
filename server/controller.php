@@ -20,7 +20,7 @@ if (isset($_POST['type']) && is_session_active()) {
             $result = logout();
             break;
         case "history":
-            $result = get_rest_history($connection);
+            $result = get_rent_history($connection);
             break;
         case "return":
             $result = return_car($connection, sanitizeMYSQL($connection, $_POST['car_id']));
