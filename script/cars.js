@@ -87,13 +87,25 @@ function logout() {
         dataType: "json",
         data: { type: "logout" },
         success: function(rec_data) { 
-            if ($.trim(rec_data)) == "success")
+            if ($.trim(rec_data) == "success")
             {
                 alert("You have been successfully logged out");
                 window.location.assign("index.html"); // redirect back home
             }
             else
                 alert("You have not been successfully logged out.  Please try again");
+        }
+    });
+}
+
+function show_rental_history() {
+    $.ajax({
+        method: "POST",
+        url: "controller.php",
+        dataType: "text",
+        data: {type: "history"},
+        success: function() {
+            view_cars();
         }
     });
 }
