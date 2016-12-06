@@ -64,7 +64,7 @@ function show_rented(){
     var show_rented = "showData";
     $.ajax({
         method: "POST",
-        url: "controller.php",
+        url: "./server/controller.php",
         dataType: "json",
         data: { type:"rentals",
                 value:show_rented},
@@ -83,7 +83,7 @@ function show_rented(){
 function logout() {
     $.ajax({ 
         method: "POST",
-        url: "controller.php",
+        url: "./server/controller.php",
         dataType: "json",
         data: { type: "logout" },
         success: function(rec_data) { 
@@ -101,7 +101,7 @@ function logout() {
 function show_rental_history() {
     $.ajax({
         method: "POST",
-        url: "controller.php",
+        url: "./server/controller.php",
         dataType: "text",
         data: {type: "history"},
         success: function() {
