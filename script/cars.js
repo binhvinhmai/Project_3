@@ -79,7 +79,7 @@ function show_rented(){
         }
     });
 }
-/*
+
 function logout() {
     $.ajax({ 
         method: "POST",
@@ -96,4 +96,5 @@ function logout() {
                 alert("You have not been successfully logged out.  Please try again");
         }
     });
-}*/
+}
+
