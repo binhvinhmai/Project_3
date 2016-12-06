@@ -6,6 +6,12 @@ function init(){
     //If user hits 'Enter' after a search
     $("#find-car-input").on("keydown",function(event){view_cars_key(event);});
     $("#logout-link").on("click", logout);
+    populate_tabs();
+}
+
+function populate_tabs() {
+    show_rented();
+    show_rental_history();
 }
 
 function view_cars_key(event) {
@@ -109,8 +115,12 @@ function show_rental_history() {
         url: "./server/controller.php",
         dataType: "text",
         data: {type: "history"},
-        success: function() {
-            view_cars();
+        success: function(data) {
+            var returned_template=$("#returned-car-template").html();
+            var html_maker = new htmlMaker(returned_template);
+            var html = html_maker.getHTML(data);
+            $("#returned_cars").html(html);
+            
         }
     });
 }
