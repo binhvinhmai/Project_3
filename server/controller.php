@@ -90,7 +90,7 @@ function return_car($connection, $car_id) {
     $result1 = mysqli_query($connection, $query);
     $query = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
             . "VALUES ('" . date("Y-m-d", time()) 
-            . "', NULL, '1','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
+            . "', NULL, '2','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
     $result2 = mysqli_query($connection, $query);
     if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
@@ -152,31 +152,32 @@ function get_rent_history($connection) {
     return json_encode($returned);
 }
 function show_rented($connection) {
-    $final = Array();
-    $final["rentals"] = Array();
+    $returned = array();
+    
     $query = "SELECT Car.Picture, CarSpecs.Make, CarSpecs.Model, CarSpecs.YearMade, CarSpecs.Size, "
             . "Rental.ID, Rental.rentDate"
             . "FROM Car INNER JOIN CarSpecs ON Car.CarSpecsID = CarSpecs.ID "
             . "INNER JOIN Rental ON Car.ID = Rental.carID "
             . "WHERE Rental.Status = 1 AND "
             . "WHERE Rental.customerID = '" . $_SESSION['ID'] . "';"; 
-    //Use the stored ID in the session (the users) to grab the rentals that are not returned who also have
-    //A customer ID that matches the ID stored in the session, and then grab the car related info associated with the rental
-	// -- Jkarnes: Yes. That's exactly what the $*_SESSION['ID'] does.
+    
     $result = mysqli_query($connection, $query);
+    
     if (!$result)
-        return json_encode($final);
+        return json_encode($returned);
     else {
         $row_count = mysqli_num_rows($result);
         for ($i = 0; $i < $row_count; $i++) {
-            $array["ID"] = $row["ID"]; 
-            $array["Make"] = $row["Make"]; 
-            $array["Model"]=$row["Model"];
-            $array["Year"]=$row["Year"];
-            $array["Picture"]=$row["Picture"];
-            $array["Size"]=$row["Size"];
-            $array["rentDate"]=$row["rentDate"];
-            $returned["rentals"][] = $array;
+            $row = mysqli_fetch_array($result);
+            $item = array("ID"=>$row["ID"],
+                "picture"=>'data:' . $row["Picture_Type"] . ';base64,' . base64_encode($row["Picture"]),
+                "make"=>$row["Make"], 
+                "model"=>$row["Model"], 
+                "year"=>$row["YearMade"],
+                "rental_ID"=>$row["ID"],
+                "rent_date"=>$row["returnDate"],
+                "size"=>$row["Size"]);
+            array_push($returned, $item);
         }
     }
     
