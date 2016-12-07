@@ -79,10 +79,11 @@ function rent($connection, $car_id) {
     $result1 = mysqli_query($connection, $query); //Check the first one
     
     //Example: UPDATE rental SET Status=1,returnDate=CURDATE() WHERE carID=10;
-    
-    $query = "UPDATE rental SET Status=1,rentDate=CURDATE()" .
-             "WHERE rental.CustomerID=" . $_SESSION['ID'] . " AND rental.carID=" . $car_id . "'); ";
+    /* $_SESSION['ID'] NOT CORRECT-> NOT POPULATING THE RENTAL TABLE CORRECTLY */
+    $query = "UPDATE rental SET Status=1,returnDate=CURDATE(),customerID='j.smith'" /*. $_SESSION['username']*/ . " WHERE carID=" . $car_id . ";";
+             
     $result2 = mysqli_query($connection, $query); //Check the second one
+    
     if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
     return "success";
@@ -162,15 +163,14 @@ function show_rented($connection) {
     
     /*Create an array of rentals so that when iterated through the database,
       each rental array will contain an array of car specifications*/
-    $rented_cars["rentals"] = Array();
+    //$rented_cars["rentals"] = Array();
     
     //Input SQL statement into $query for rented car data
     $query = "SELECT car.Picture, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size, "
             . "rental.ID, rental.rentDate"
             . "FROM car INNER JOIN carspecs ON car.CarSpecsID = carspecs.ID "
             . "INNER JOIN rental ON Car.ID = rental.carID "
-            . "WHERE car.Status = 1 AND "
-            . "WHERE rental.customerID = '" . $_SESSION['ID'] . "';"; 
+            . "WHERE car.Status = 1 AND rental.customerID = '" . $_SESSION['ID'] . "';"; 
     
     //Return SQL query into $result
     $result = mysqli_query($connection, $query);
