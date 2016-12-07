@@ -86,11 +86,13 @@ function rent($connection, $car_id) {
     return "success";
 }
 function return_car($connection, $car_id) {
+    //Set Car Status to 1(available)
     $query = "UPDATE car SET Status='1' WHERE ID='$car_id'";
     $result1 = mysqli_query($connection, $query);
-    $query = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
+    //Set Rental Status to 2(car is returned)
+    $query = "INSERT INTO rental(returnDate, status, CustomerID, carID) "
             . "VALUES ('" . date("Y-m-d", time()) 
-            . "', NULL, '2','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
+            . "', '2','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
     $result2 = mysqli_query($connection, $query);
     if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
