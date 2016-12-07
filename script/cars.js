@@ -82,8 +82,8 @@ function show_rented(){
             var html_maker=new htmlMaker(info_template);
             var html=html_maker.getHTML(data);    
             $("#rented_cars").html(html);
-            $("div[class=car_return]").on("click",function(){return_car(this);});
-            $(".return_car").on("click",return_car($this.attr("data-rental-id")));//pretty sure this is correct                
+            $("div[class=return_car]").on("click",function(){return_car(this);});
+            //$(".return_car").on("click",return_car($this.attr("data-rental-id")));//pretty sure this is correct                
             
         }
     });
@@ -113,7 +113,7 @@ function show_rental_history() {
     $.ajax({
         method: "POST",
         url: "./server/controller.php",
-        dataType: "text",
+        dataType: "json",
         data: {type: "history"},
         success: function(data) {
             var returned_template=$("#returned-car-template").html();
