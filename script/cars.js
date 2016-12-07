@@ -89,6 +89,23 @@ function show_rented(){
     });
 }
 
+function show_rental_history() {
+    console.log("Tried to show rent history");
+    $.ajax({
+        method: "POST",
+        url: "./server/controller.php",
+        dataType: "json",
+        data: {type: "history"},
+        success: function(data) {
+            var returned_template=$("#returned-car-template").html();
+            var html_maker = new htmlMaker(returned_template);
+            var html = html_maker.getHTML(data);
+            $("#returned_cars").html(html);
+            
+        }
+    });
+}
+
 function logout() {
     console.log("Tried to log out");
     $.ajax({ 
@@ -107,21 +124,3 @@ function logout() {
         }
     });
 }
-
-function show_rental_history() {
-    console.log("Tried to show rent history");
-    $.ajax({
-        method: "POST",
-        url: "./server/controller.php",
-        dataType: "json",
-        data: {type: "history"},
-        success: function(data) {
-            var returned_template=$("#returned-car-template").html();
-            var html_maker = new htmlMaker(returned_template);
-            var html = html_maker.getHTML(data);
-            $("#returned_cars").html(html);
-            
-        }
-    });
-}
-
