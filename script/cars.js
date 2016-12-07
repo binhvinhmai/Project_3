@@ -63,7 +63,7 @@ function return_car(return_car_button) {
         data: {type: "return",car_id:car_id},
         success: function (data) {
             alert("The car has been successfully returned");
-            show_rented_cars();
+            show_rented();
         }
     })
 }
