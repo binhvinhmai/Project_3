@@ -165,8 +165,8 @@ function show_rented($connection) {
             . "rental.ID, rental.rentDate"
             . "FROM car INNER JOIN carspecs ON car.CarSpecsID = carspecs.ID "
             . "INNER JOIN rental ON Car.ID = rental.carID "
-            . "WHERE car.Status = 1;"// AND "
-            //. "WHERE rental.customerID = '" . $_SESSION['ID'] . "';"; 
+            . "WHERE car.Status = 1 AND "
+            . "WHERE rental.customerID = '" . $_SESSION['ID'] . "';"; 
     
     //Return SQL query into $result
     $result = mysqli_query($connection, $query);
