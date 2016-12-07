@@ -72,7 +72,7 @@ function show_rented(){
     console.log("Tried to show rented cars");
     var show_rented = "showData";
     $.ajax({
-        method: "GET",
+        method: "POST",
         url: "./server/controller.php",
         dataType: "json",
         data: { type:"rentals",
