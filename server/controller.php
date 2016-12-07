@@ -98,21 +98,6 @@ function return_car($connection, $car_id) {
         return "fail";
     return "success";
 }
-function logout() {
-    $_SESSION = array(); //Everything we put into the session array (data, login info, ID, etc) is gone
-    
-    //Now we destroy the cookie
-    //100% adapted from Kuhail's slides thank you Professor Kuhail
-    //Set the cookie time a month in the past that should be enough
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 2592000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
-    }
-    
-    //Last but not least we destroy the session
-    session_destroy();
-    return "success";
-}
 function get_rent_history($connection) {
     //Assumes rental history is the same regardless of who is logged in
     
@@ -195,5 +180,20 @@ function show_rented($connection) {
     }
     
     return json_encode($rented_cars);
+}
+function logout() {
+    $_SESSION = array(); //Everything we put into the session array (data, login info, ID, etc) is gone
+    
+    //Now we destroy the cookie
+    //100% adapted from Kuhail's slides thank you Professor Kuhail
+    //Set the cookie time a month in the past that should be enough
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 2592000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
+    }
+    
+    //Last but not least we destroy the session
+    session_destroy();
+    return "success";
 }
 ?>
