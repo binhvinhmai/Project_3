@@ -121,8 +121,8 @@ function get_rent_history($connection) {
     //rental.status = 2 means it's been returned
     $query = "SELECT car.ID, car.Color, car.Picture, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size "
             . "FROM car INNER JOIN carspecs ON car.CarSpecsID = CarSpecs.ID "
-            . "INNER JOIN Rental ON car.ID = rental.carID "
-            . "WHERE Rental.returnDate IS NOT NULL;";
+            . "INNER JOIN rental ON car.ID = rental.carID "
+            . "WHERE rental.returnDate IS NOT NULL;";
     $result = mysqli_query($connection, $query);
     
     //If for some reason this hybrid database doesn't work, return "failed"
@@ -152,14 +152,14 @@ function get_rent_history($connection) {
     return json_encode($returned);
 }
 function show_rented($connection) {
-    $returned = array();
+    $returned = Array();
     
-    $query = "SELECT Car.Picture, CarSpecs.Make, CarSpecs.Model, CarSpecs.YearMade, CarSpecs.Size, "
-            . "Rental.ID, Rental.rentDate"
-            . "FROM Car INNER JOIN CarSpecs ON Car.CarSpecsID = CarSpecs.ID "
-            . "INNER JOIN Rental ON Car.ID = Rental.carID "
-            . "WHERE Rental.Status = 1 AND "
-            . "WHERE Rental.customerID = '" . $_SESSION['ID'] . "';"; 
+    $query = "SELECT car.Picture, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size, "
+            . "rental.ID, rental.rentDate"
+            . "FROM car INNER JOIN carspecs ON car.CarSpecsID = carspecs.ID "
+            . "INNER JOIN rental ON Car.ID = rental.carID "
+            . "WHERE rental.Status = 1 AND "
+            . "WHERE rental.customerID = '" . $_SESSION['ID'] . "';"; 
     
     $result = mysqli_query($connection, $query);
     
@@ -181,6 +181,6 @@ function show_rented($connection) {
         }
     }
     
-    return json_encode($final);
+    return json_encode($returned);
 }
 ?>
