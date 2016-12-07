@@ -151,22 +151,33 @@ function get_rent_history($connection) {
     //If we've gotten here the Returned Cars array should have been filled
     return json_encode($returned);
 }
+
 function show_rented($connection) {
-    $returned = Array();
+    //Initialize $rented_cars array
+    $rented_cars = Array();
     
+    /*Create an array of rentals so that when iterated through the database,
+      each rental array will contain an array of car specifications*/
+    $rented_cars["rentals"] = Array();
+    
+    //Input SQL statement into $query for rented car data
     $query = "SELECT car.Picture, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size, "
             . "rental.ID, rental.rentDate"
             . "FROM car INNER JOIN carspecs ON car.CarSpecsID = carspecs.ID "
             . "INNER JOIN rental ON Car.ID = rental.carID "
-            . "WHERE rental.Status = 1 AND "
-            . "WHERE rental.customerID = '" . $_SESSION['ID'] . "';"; 
+            . "WHERE car.Status = 1;"// AND "
+            //. "WHERE rental.customerID = '" . $_SESSION['ID'] . "';"; 
     
+    //Return SQL query into $result
     $result = mysqli_query($connection, $query);
     
+    //If no returned result, output empty data
     if (!$result)
-        return json_encode($returned);
+        die("Database access failed: " . mysqli_error($connection));
     else {
+        //Count the number of rows
         $row_count = mysqli_num_rows($result);
+        //Iterate through the array
         for ($i = 0; $i < $row_count; $i++) {
             $row = mysqli_fetch_array($result);
             $item = array("ID"=>$row["ID"],
@@ -177,10 +188,10 @@ function show_rented($connection) {
                 "rental_ID"=>$row["ID"],
                 "rent_date"=>$row["returnDate"],
                 "size"=>$row["Size"]);
-            array_push($returned, $item);
+            $rented_cars["rentals"][] = $item;
         }
     }
     
-    return json_encode($returned);
+    return json_encode($rented_cars);
 }
 ?>
