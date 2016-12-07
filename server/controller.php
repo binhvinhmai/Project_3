@@ -77,9 +77,11 @@ function rent($connection, $car_id) {
     //Make it '2' to mark that it's unavailable
     $query = "UPDATE car SET Status='2' WHERE ID='$car_id'";
     $result1 = mysqli_query($connection, $query); //Check the first one
-    $query = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
-            . "VALUES ('" . date("Y-m-d", time()) 
-            . "', NULL, '2','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
+    
+    //Example: UPDATE rental SET Status=1,returnDate=CURDATE() WHERE carID=10;
+    
+    $query = "UPDATE rental SET Status=1,rentDate=CURDATE()" .
+             "WHERE rental.CustomerID=" . $_SESSION['ID'] . " AND rental.carID=" . $car_id . "'); ";
     $result2 = mysqli_query($connection, $query); //Check the second one
     if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
@@ -90,12 +92,27 @@ function return_car($connection, $car_id) {
     $query = "UPDATE car SET Status='1' WHERE ID='$car_id'";
     $result1 = mysqli_query($connection, $query);
     //Set Rental Status to 2(car is returned)
-    $query = "INSERT INTO rental(returnDate, status, CustomerID, carID) "
-            . "VALUES ('" . date("Y-m-d", time()) 
-            . "', '2','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
+    $query = "UPDATE rental SET Status=2,returnDate=CURDATE()"
+            . "WHERE rental.CustomerID=" . $_SESSION['ID'] . " AND rental.carID=" . $car_id . "'); ";
     $result2 = mysqli_query($connection, $query);
     if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
+    return "success";
+}
+
+function logout() {
+    $_SESSION = array(); //Everything we put into the session array (data, login info, ID, etc) is gone
+    
+    //Now we destroy the cookie
+    //100% adapted from Kuhail's slides thank you Professor Kuhail
+    //Set the cookie time a month in the past that should be enough
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 2592000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
+    }
+    
+    //Last but not least we destroy the session
+    session_destroy();
     return "success";
 }
 function get_rent_history($connection) {
@@ -180,20 +197,5 @@ function show_rented($connection) {
     }
     
     return json_encode($rented_cars);
-}
-function logout() {
-    $_SESSION = array(); //Everything we put into the session array (data, login info, ID, etc) is gone
-    
-    //Now we destroy the cookie
-    //100% adapted from Kuhail's slides thank you Professor Kuhail
-    //Set the cookie time a month in the past that should be enough
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 2592000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
-    }
-    
-    //Last but not least we destroy the session
-    session_destroy();
-    return "success";
 }
 ?>
