@@ -13,7 +13,6 @@
             <tr>
                 <th>Picture</th><th>Detail</th><th></th>
             </tr>
-            {{#block rented_car}}
             <tr>
                 <td><img src="{{picture}}"></td> 
                 <td class="car_details"> 
@@ -40,7 +39,6 @@
                 </td>
 
             </tr>
-            {{#end block rented_car}}
         </table>
     </script>
     <script id="returned-car-template" type="text/html">
@@ -48,7 +46,6 @@
             <tr>
                 <th>Picture</th><th>Detail</th>
             </tr>
-            {{#block returned_car}}
             <tr>
                 <td><img src="{{picture}}"></td> 
                 <td class="car_details"> 
@@ -71,7 +68,6 @@
                     </div>          
                 </td>
             </tr>
-            {{#end block returned_car}}
         </table>
     </script>
     <script id="find-car-template" type="text/html">
