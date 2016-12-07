@@ -69,22 +69,24 @@ function return_car(return_car_button) {
 }
 
 function show_rented(){
-    console.log("tried to show rented cars");
+    console.log("Tried to show rented cars");
     var show_rented = "showData";
     $.ajax({
-        method: "POST",
+        method: "GET",
         url: "./server/controller.php",
         dataType: "json",
         data: { type:"rentals",
                 value:show_rented},
         success: function(data) {
+            //Create HTML elements using rented-car-template
             var info_template=$("#rented-car-template").html();
             var html_maker=new htmlMaker(info_template);
+            //Use data from database to populate HTML
             var html=html_maker.getHTML(data);    
+            //Populate the #rented_cars block
             $("#rented_cars").html(html);
+            //If return_car div clicked, return car and use AJAX to refresh
             $("div[class=return_car]").on("click",function(){return_car(this);});
-            //$(".return_car").on("click",return_car($this.attr("data-rental-id")));//pretty sure this is correct                
-            
         }
     });
 }
