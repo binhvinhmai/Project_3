@@ -20,7 +20,6 @@ function view_cars_key(event) {
 }
 
 function view_cars() {
-    console.log("Tried to view cars");
     var search = $("#find-car-input").val();
     $.ajax({
         method: "POST",
@@ -49,15 +48,14 @@ function rent_car(rent_car_button) {
             if ($.trim(data)=="success") {
                 alert("The car has been rented successfully");
                 view_cars(); //Refresh page so that the rented car doesn't show
+                show_rented();//Refresh this tab
             }
         }
     }); 
 }
 
 function return_car(return_car_button) {
-    console.log("Judgemental statements");
     var car_id=$(return_car_button).attr("data-rental-id");
-    console.log(car_id);
     $.ajax({
         method: "POST",
         url: "./server/controller.php",
@@ -65,8 +63,8 @@ function return_car(return_car_button) {
         data: {type: "return",car_id:car_id},
         success: function (data) {
             alert("The car has been successfully returned");
-            show_rented();
-            console.log("Shouldve refreshed page...(I'm in the return_car() function)");
+            show_rented(); //Refresh page
+            show_rental_history(); //Refresh history tab
         }
     })
 }
@@ -87,13 +85,11 @@ function show_rented(){
             $("#rented_cars").html(html);
             //If return_car div clicked, return car and use AJAX to refresh
             $("div[class=return_car]").on("click",function(){return_car(this);});
-            console.log("refresh the page...");
         }
     });
 }
 
 function show_rental_history() {
-    console.log("Tried to show rent history");
     $.ajax({
         method: "POST",
         url: "./server/controller.php",
@@ -110,7 +106,6 @@ function show_rental_history() {
 }
 
 function logout() {
-    console.log("Tried to log out");
     $.ajax({ 
         method: "POST",
         url: "./server/controller.php",

@@ -1,13 +1,13 @@
 <?php
 include "sanitization.php";
-session_start(); //start the session
+session_start(); //Start the session
 $result= "failure";
 //Get the type and ensure that we have an active session
 if (isset($_POST['type']) && is_session_active()) {
     
     $request_type = sanitizeMYSQL($connection, $_POST['type']);
-    $_SESSION['start'] = time(); //reset the session start time
-     switch ($request_type) { //check the request type
+    $_SESSION['start'] = time(); //Reset the session start time
+     switch ($request_type) { //Check the request type
         case "search":
             $result = search($connection, sanitizeMYSQL($connection, $_POST['search']));
             break;
@@ -72,58 +72,42 @@ function search($connection, $search) {
     }
     return json_encode($final_result);
 }
+
 function rent($connection, $car_id) {
-    //The following code performs two SQL queries
-    //Make it '2' to mark that it's unavailable
-    /*$query = "UPDATE car SET Status='2' WHERE ID='$car_id'";
-    $result1 = mysqli_query($connection, $query); //Check the first one
-    $query = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
-            . "VALUES ('" . date("Y-m-d", time()) 
-            . "', NULL, '2','" . $_SESSION['ID'] . "','" . $car_id . "'); ";
-    $result2 = mysqli_query($connection, $query); //Check the second one
-    if ((!$result1) AND (!$result2)) //If both failed
-        return "fail";
-    return "success";*/
      //The following code performs two SQL queries
     //Make it '2' to mark that it's unavailable
     $query = "UPDATE car SET Status='2' WHERE ID='$car_id'";
     $result1 = mysqli_query($connection, $query); //Check the first one
     
-    //Example: UPDATE rental SET Status=1,returnDate=CURDATE() WHERE carID=10;
-    /* $_SESSION['ID'] NOT CORRECT-> NOT POPULATING THE RENTAL TABLE CORRECTLY */
-    $query = "UPDATE rental SET Status=1,rentDate=CURDATE(),customerID='j.smith'" /*. $_SESSION['username']*/ . " WHERE carID=" . $car_id . ";";
-             
+    
+    $query = "UPDATE rental SET Status='1',rentDate=CURDATE(),customerID='" . $_SESSION['ID'] . "' WHERE carID=" . $car_id . ";";     
     $result2 = mysqli_query($connection, $query); //Check the second one
     
     if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
     return "success";
 }
+
 function return_car($connection, $car_id) {
-    //$query = "UPDATE car SET Status='1' WHERE ID='$car_id'";
-    //$result1 = mysqli_query($connection, $query);
-    //$query = "UPDATE rental SET Status=2, returnDate=CURDATE() " 
-            
-            /*"INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) "
-            . "VALUES ('" . date("Y-m-d", time()) 
-            . "', NULL, '2','" . $_SESSION['ID'] . "','" . $car_id . "'); ";*/
-    /*$result2 = mysqli_query($connection, $query);
-    if ((!$result1) AND (!$result2)) //If both failed
-        return "fail";
-    return "success";*/
+ 
     //Set Car Status to 1(available)
     $query = "UPDATE car SET Status='1' WHERE ID='$car_id'";
     $result1 = mysqli_query($connection, $query);
+    
     //Set Rental Status to 2(car is returned)
     $query = "UPDATE rental SET Status='2',returnDate=CURDATE() "
             . "WHERE rental.CustomerID='" . $_SESSION['ID'] . "' AND rental.carID='" . $car_id . "';";
     $result2 = mysqli_query($connection, $query);
+    
     if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
     return "success";
+
 }
+
 function logout() {
-    $_SESSION = array(); //Everything we put into the session array (data, login info, ID, etc) is gone
+    //Everything we put into the session array (data, login info, ID, etc) is gone
+    $_SESSION = array(); 
     
     //Now we destroy the cookie
     //100% adapted from Kuhail's slides thank you Professor Kuhail
@@ -133,10 +117,11 @@ function logout() {
         setcookie(session_name(), '', time() - 2592000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
     }
     
-    //Last but not least we destroy the session
+    //Last, but not least, we destroy the session
     session_destroy();
     return "success";
 }
+
 function get_rent_history($connection) {
     //Assumes rental history is the same regardless of who is logged in
     
@@ -145,10 +130,10 @@ function get_rent_history($connection) {
     //$returned["cars"] = Array();
     //We need the relevent info about the cars, but they're in two different databases
     //rental.status = 2 means it's been returned
-    $query = "SELECT car.ID, car.Color, car.Picture, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size "
+    $query = "SELECT car.ID, car.Color, car.Picture, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size, rental.returnDate "
             . "FROM car INNER JOIN carspecs ON car.CarSpecsID = CarSpecs.ID "
             . "INNER JOIN Rental ON car.ID = rental.carID "
-            . "WHERE Rental.returnDate IS NOT NULL;";
+            . "WHERE rental.returnDate IS NOT NULL;";
     $result = mysqli_query($connection, $query);
     
     //If for some reason this hybrid database doesn't work, return "failed"
@@ -177,6 +162,7 @@ function get_rent_history($connection) {
     //If we've gotten here the Returned Cars array should have been filled
     return json_encode($returned);
 }
+
 function show_rented($connection) {
     $returned = array();
     
