@@ -38,7 +38,8 @@ function is_session_active() {
 }
 
 function get_name($connection) {
-    return $_SESSION["username"];
+    $name = $_SESSION['username'];
+    return $name;
 }
 
 function search($connection, $search) {
@@ -83,11 +84,12 @@ function search($connection, $search) {
 function rent($connection, $car_id) {
      //The following code performs two SQL queries
     //Make it '2' to mark that it's unavailable
-    $query = "UPDATE car SET Status='2' WHERE ID='$car_id'";
-    $result1 = mysqli_query($connection, $query); //Check the first one
+    $query1 = "UPDATE car SET Status='2' WHERE ID='$car_id'";
+    $result1 = mysqli_query($connection, $query1); //Check the first one
 
-    $query = "UPDATE rental SET Status='1',rentDate=CURDATE(),customerID='" . $_SESSION['ID'] . "' WHERE carID=" . $car_id . ";";     
-    $result2 = mysqli_query($connection, $query); //Check the second one
+    //Add row to rental SQL 
+    $query2 = "INSERT INTO rental (status, rentDate, CustomerID, carID) VALUES ('1',CURDATE(),'" . $_SESSION['ID'] . "', '" . $car_id . "');";     
+    $result2 = mysqli_query($connection, $query2); //Check the second one
     
     if ((!$result1) AND (!$result2)) //If both failed
         return "fail";
@@ -100,7 +102,7 @@ function return_car($connection, $car_id) {
     $result1 = mysqli_query($connection, $query);
     
     //Set Rental Status to 2(car is returned)
-    $query = "UPDATE rental SET Status='2',returnDate=CURDATE() "
+    $query = "UPDATE rental SET status='2',returnDate=CURDATE() "
             . "WHERE rental.CustomerID='" . $_SESSION['ID'] . "' AND rental.carID='" . $car_id . "';";
 
     $result2 = mysqli_query($connection, $query);
@@ -127,19 +129,20 @@ function logout() {
     session_destroy();
     return "success";
 }
+
 function get_rent_history($connection) {
     //Assumes rental history is the same regardless of who is logged in
     
     //Variables:
-    $returned = Array();
+    $returned = array();
     //$returned["cars"] = Array();
     //We need the relevent info about the cars, but they're in two different databases
     //rental.status = 2 means it's been returned
     $query = "SELECT car.ID, car.Color, car.Picture, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size, rental.returnDate "
             . "FROM car INNER JOIN carspecs ON car.CarSpecsID = CarSpecs.ID "
-            . "INNER JOIN Rental ON car.ID = rental.carID "
-
-            . "WHERE rental.returnDate IS NOT NULL;";
+            . "INNER JOIN Rental ON car.ID = rental.carID WHERE "
+            . "rental.customerID = '" . $_SESSION["ID"] . "' AND "
+            . "rental.returnDate IS NOT NULL;";
     $result = mysqli_query($connection, $query);
     
     //If for some reason this hybrid database doesn't work, return "failed"
@@ -177,8 +180,8 @@ function show_rented($connection) {
             . "rental.carID, rental.rentDate "
             . "FROM car INNER JOIN carspecs ON car.CarSpecsID = carspecs.ID "
             . "INNER JOIN rental ON car.ID = rental.carID "
-            . "WHERE rental.Status = '1' AND "
-            . "rental.customerID = '" . $_SESSION["ID"] . "' AND car.Status = '2';"; 
+            . "WHERE rental.status = '1' AND "
+            . "rental.customerID = '" . $_SESSION["ID"] . "';"; 
     
     $result = mysqli_query($connection, $query);
     

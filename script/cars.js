@@ -21,21 +21,18 @@ function view_cars_key(event) {
 }
 
 function get_name() {
-    console.log("NAME IS HERE");
      $.ajax({
         method: "POST",
         url: "./server/controller.php",
         dataType: "text", //Return text data
         data: {type: "name"}, 
         success: function (data) {
-            console.log(data);
             $("#username").html(data);
         }
     });
 }
 
 function view_cars() {
-    console.log("Tried to view cars");
     var search = $("#find-car-input").val();
     $.ajax({
         method: "POST",
@@ -64,7 +61,7 @@ function rent_car(rent_car_button) {
             if ($.trim(data)=="success") {
                 alert("The car has been rented successfully");
                 view_cars(); //Refresh page so that the rented car doesn't show
-                show_rented();//Refresh this tab
+                show_rented();//Refresh this tab so it should now appear
             }
         }
     }); 
@@ -79,8 +76,8 @@ function return_car(return_car_button) {
         data: {type: "return",car_id:car_id},
         success: function (data) {
             alert("The car has been successfully returned");
-            show_rented(); //Refresh page
-            show_rental_history(); //Refresh history tab
+            populate_tabs();
+            view_cars();
         }
     })
 }
