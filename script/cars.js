@@ -20,6 +20,7 @@ function view_cars_key(event) {
 }
 
 function view_cars() {
+    console.log("Tried to view cars");
     var search = $("#find-car-input").val();
     $.ajax({
         method: "POST",

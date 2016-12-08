@@ -72,14 +72,12 @@ function search($connection, $search) {
     }
     return json_encode($final_result);
 }
-
 function rent($connection, $car_id) {
      //The following code performs two SQL queries
     //Make it '2' to mark that it's unavailable
     $query = "UPDATE car SET Status='2' WHERE ID='$car_id'";
     $result1 = mysqli_query($connection, $query); //Check the first one
-    
-    
+
     $query = "UPDATE rental SET Status='1',rentDate=CURDATE(),customerID='" . $_SESSION['ID'] . "' WHERE carID=" . $car_id . ";";     
     $result2 = mysqli_query($connection, $query); //Check the second one
     
@@ -87,7 +85,6 @@ function rent($connection, $car_id) {
         return "fail";
     return "success";
 }
-
 function return_car($connection, $car_id) {
  
     //Set Car Status to 1(available)
@@ -97,6 +94,7 @@ function return_car($connection, $car_id) {
     //Set Rental Status to 2(car is returned)
     $query = "UPDATE rental SET Status='2',returnDate=CURDATE() "
             . "WHERE rental.CustomerID='" . $_SESSION['ID'] . "' AND rental.carID='" . $car_id . "';";
+
     $result2 = mysqli_query($connection, $query);
     
     if ((!$result1) AND (!$result2)) //If both failed
@@ -121,7 +119,6 @@ function logout() {
     session_destroy();
     return "success";
 }
-
 function get_rent_history($connection) {
     //Assumes rental history is the same regardless of who is logged in
     
@@ -133,6 +130,7 @@ function get_rent_history($connection) {
     $query = "SELECT car.ID, car.Color, car.Picture, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size, rental.returnDate "
             . "FROM car INNER JOIN carspecs ON car.CarSpecsID = CarSpecs.ID "
             . "INNER JOIN Rental ON car.ID = rental.carID "
+
             . "WHERE rental.returnDate IS NOT NULL;";
     $result = mysqli_query($connection, $query);
     
@@ -164,6 +162,7 @@ function get_rent_history($connection) {
 }
 
 function show_rented($connection) {
+
     $returned = array();
     
     $query = "SELECT car.Picture, car.Picture_Type, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size, "
@@ -178,7 +177,9 @@ function show_rented($connection) {
     if (!$result)
         die("Database access failed: " . mysqli_error($connection));
     else {
+        //Count the number of rows
         $row_count = mysqli_num_rows($result);
+        //Iterate through the array
         for ($i = 0; $i < $row_count; $i++) {
             $row = mysqli_fetch_array($result);
             $item = array("ID"=>$row["ID"],
@@ -194,5 +195,6 @@ function show_rented($connection) {
     }
     
     return json_encode($returned);
+
 }
 ?>
