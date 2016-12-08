@@ -8,6 +8,9 @@ if (isset($_POST['type']) && is_session_active()) {
     $request_type = sanitizeMYSQL($connection, $_POST['type']);
     $_SESSION['start'] = time(); //Reset the session start time
      switch ($request_type) { //Check the request type
+        case "name":
+            $result = get_name($connection);
+            break;
         case "search":
             $result = search($connection, sanitizeMYSQL($connection, $_POST['search']));
             break;
@@ -33,6 +36,11 @@ if (isset($_POST['type']) && is_session_active()) {
 function is_session_active() {
     return isset($_SESSION) && count($_SESSION) > 0 && time() < $_SESSION['start'] + 60 * 5; //check if it has been 5 minutes
 }
+
+function get_name($connection) {
+    return $_SESSION["username"];
+}
+
 function search($connection, $search) {
     //Select all cars where any of the description is similar to the input
     $query = "SELECT car.ID, car.Status, car.Picture, car.Picture_type, car.Color, carspecs.Make, carspecs.Model, carspecs.YearMade, carspecs.Size FROM car "

@@ -1,6 +1,7 @@
 $(document).ready(init);
 
 function init(){
+    get_name();
     //If user clicks the magnifying glass
     $("#find-car").on("click",view_cars);
     //If user hits 'Enter' after a search
@@ -17,6 +18,20 @@ function populate_tabs() {
 function view_cars_key(event) {
     if (event.keyCode == 13) //ENTER KEY
         view_cars();
+}
+
+function get_name() {
+    console.log("NAME IS HERE");
+     $.ajax({
+        method: "POST",
+        url: "./server/controller.php",
+        dataType: "text", //Return text data
+        data: {type: "name"}, 
+        success: function (data) {
+            console.log(data);
+            $("#username").html(data);
+        }
+    });
 }
 
 function view_cars() {
